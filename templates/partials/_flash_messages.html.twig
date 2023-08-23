@@ -1,0 +1,5 @@
+{% for cat, List in app.flashes %}
+  {% for msg in List %}
+    <div class="flash flash-{{ cat }}">{{ msg }}</div>
+  {% endfor %}
+{% endfor %}

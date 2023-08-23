@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello QuestionController!{% endblock %}
+
+{% block body %}
+    <h1>QuestionController</h1>
+
+    {{ form_start(form) }}
+    <div class="block mb-20">
+    {{ form_rest(form) }}
+    </div>
+    <button class="btn btn-primary">Sauvegarder ma question</button>
+    {{ form_end(form) }}
+{% endblock %}

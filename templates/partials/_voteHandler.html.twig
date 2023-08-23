@@ -1,0 +1,12 @@
+<div class="d-flex flex-column mr-20 align-items-center">
+  <i class="fa-regular fa-thumbs-up {{ rating > 0 ? 'rating-up' : '' }}"></i>
+  <p
+
+    {% if rating >= 0 %}
+        class="rating-up"
+    {% else %}
+        class="rating-down"
+    {% endif %}             
+  >{{ rating }}</p>
+  <i class="fa-regular fa-thumbs-down {{ rating < 0 ? 'rating-down' : '' }}"></i>
+</div>
