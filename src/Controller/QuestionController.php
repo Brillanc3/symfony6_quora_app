@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Comment;
 use App\Entity\Question;
+use App\Entity\User;
 use App\Form\CommentType;
 use App\Form\QuestionType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -64,7 +65,7 @@ class QuestionController extends AbstractController
 
             $em->persist($newComment);
             $em->flush();
-            $referer = $request->headers->get('HTTP_REFFERER');
+            $referer = $request->headers->get('referer');
             return $referer ? $this->redirect($referer) : $this->redirectToRoute('home');
         }
 
@@ -76,12 +77,16 @@ class QuestionController extends AbstractController
 
     #[Route('/{id}/up', name: 'up')]
     #[Route('/{id}/down', name: 'down')]
-    public function up(Question $question, EntityManagerInterface $em, Request $request)
+    public function up(Question $question, EntityManagerInterface $em, Request $request) : Response
     {
-        $question->setRatting($question->getRatting() +  ($request->getPathInfo() === '/question/' . $question->getId() . '/up' ? 1 : -1));
-        $em->flush();
+        $referer = $request->headers->get('referer');
 
-        $referer = $request->headers->get('HTTP_REFFERER');
+        if ($this->getUser()) {
+            $question->setRatting($question->getRatting() +  ($request->getPathInfo() === '/question/' . $question->getId() . '/up' ? 1 : -1));
+            $em->flush();
+        } else {
+            $this->addFlash('error', 'Vous devez être connecté pour voter !');
+        }
         return $referer ? $this->redirect($referer) : $this->redirectToRoute('home');
     }
 }

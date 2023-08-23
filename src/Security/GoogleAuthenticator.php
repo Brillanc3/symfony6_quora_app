@@ -23,6 +23,7 @@ class GoogleAuthenticator extends OAuth2Authenticator
     private EntityManagerInterface $entityManager;
     private RouterInterface $router;
 
+    
     public function __construct(ClientRegistry $clientRegistry, EntityManagerInterface $entityManager, RouterInterface $router)
     {
         $this->clientRegistry = $clientRegistry;
@@ -49,17 +50,21 @@ class GoogleAuthenticator extends OAuth2Authenticator
                 $email = $googleUser->getEmail();
 
                 // have they logged in with Google before? Easy!
-                $existingUser = $this->entityManager->getRepository(User::class)->findOneBy(['googleId' => $googleUser->getId()]);
-
+                $existingUser = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $googleUser->getEmail()]);
                 //User doesnt exist, we create it !
                 if (!$existingUser) {
                     $existingUser = new User();
+                    $existingUser->setPseudonyme($googleUser->getName());
                     $existingUser->setEmail($email);
-                    $existingUser->setGoogleId($googleUser->getId());
-                    $existingUser->setHostedDomain($googleUser->getHostedDomain());
+                    $existingUser->setPassword('');
                     $this->entityManager->persist($existingUser);
+                } elseif (!$existingUser->getGoogleId()) {
+                    $existingUser->setGoogleId($googleUser->getId());
+                    $existingUser->setAvatar($googleUser->getAvatar());
+                } else {
+                    // update access token
+                    $existingUser->setGoogleId($googleUser->getId());
                 }
-                $existingUser->setAvatar($googleUser->getAvatar());
                 $this->entityManager->flush();
 
                 return $existingUser;
@@ -72,7 +77,7 @@ class GoogleAuthenticator extends OAuth2Authenticator
 
         // change "app_dashboard" to some route in your app
         return new RedirectResponse(
-            $this->router->generate('app_dashboard')
+            $this->router->generate('home')
         );
 
         // or, on success, let the request continue to be handled by the controller

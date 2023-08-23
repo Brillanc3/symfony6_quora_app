@@ -7,7 +7,7 @@
 {% block body %}
   <div class="block mb-20">
     <div class="d-flex flex-row-nowrap align-items-center pb-30">
-      {% include 'partials/_voteHandler.html.twig' with { rating : question.ratting } %}
+      {% include 'partials/_voteHandler.html.twig' with { rating : question.ratting, from : 'question', id : question.id} %}
       <h3 class="mr-5">{{ question.title }}</h3>
       <div class="question-tag">QUESTION</div>
       <img src="https://randomuser.me/api/portraits/men/86.jpg" alt="" class="avatar ml-auto" />
@@ -24,12 +24,12 @@
     </div>
   </div>
 
-  {% if question.comments|length > 0  %}
+  {% if question.comments|length  %}
   <div class="block mby-20">
     {% for comment in question.comments %}
       <div class="question-response-elem mb-30">
         <div class="d-flex flex-row-nowrap align-items-center pb-10">
-          {% include "partials/_voteHandler.html.twig" with { rating : comment.rating } %}
+          {% include "partials/_voteHandler.html.twig" with { rating : comment.rating, from : 'comment', id : comment.id} %}
           <img src="https://randomuser.me/api/portraits/men/86.jpg" alt="" class="avatar mr-10" />
           <p class="clickable">Brillance</p>
           <code class="ml-auto">{{ comment.createdAt|ago(locale = 'fr') }}</code>

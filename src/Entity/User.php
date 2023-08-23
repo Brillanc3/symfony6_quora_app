@@ -35,10 +35,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $pseudonyme = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $GoogleId = null;
+    private ?string $googleId = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $HostedDomain = null;
+    private ?string $hostedDomain = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $avatar = null;
 
     public function getId(): ?int
     {
@@ -124,24 +127,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getGoogleId(): ?string
     {
-        return $this->GoogleId;
+        return $this->googleId;
     }
 
     public function setGoogleId(string $GoogleId): static
     {
-        $this->GoogleId = $GoogleId;
+        $this->googleId = $GoogleId;
 
         return $this;
     }
 
     public function getHostedDomain(): ?string
     {
-        return $this->HostedDomain;
+        return $this->hostedDomain;
     }
 
     public function setHostedDomain(?string $HostedDomain): static
     {
-        $this->HostedDomain = $HostedDomain;
+        $this->hostedDomain = $HostedDomain;
+
+        return $this;
+    }
+
+    public function getAvatar(): ?string
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(?string $avatar): static
+    {
+        $this->avatar = $avatar;
 
         return $this;
     }

@@ -11,10 +11,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class ProfileController extends AbstractController
 {
 
-    #[Route(path: '{id}', name: 'index')]
+    #[Route('/{id}', name: 'show')]
     #[Route(path: '', name: 'index')]
     public function index(User $user): Response
     {
+
+
         return $this->render('profile/index.html.twig', [
             'user' => $user
         ]);
