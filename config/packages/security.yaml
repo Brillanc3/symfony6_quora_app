@@ -30,6 +30,7 @@ security:
         lifetime: 604800 # 1 week in seconds
       custom_authenticators:
         - App\Security\GoogleAuthenticator
+        - App\Security\DiscordAuthenticator
       # activate different ways to authenticate
       # https://symfony.com/doc/current/security.html#the-firewall
 
@@ -41,6 +42,7 @@ security:
   access_control:
     # - { path: ^/admin, roles: ROLE_ADMIN }
     - { path: ^/profile, roles: ROLE_USER }
+    - { path: ^/question/ask, roles: ROLE_USER }
 
 when@test:
   security:

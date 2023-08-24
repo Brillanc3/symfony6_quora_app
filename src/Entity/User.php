@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -42,6 +44,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $avatar = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: LinkedAcount::class)]
+    private Collection $linkedAcounts;
+
+    public function __construct()
+    {
+        $this->linkedAcounts = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -157,6 +167,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setAvatar(?string $avatar): static
     {
         $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, LinkedAcount>
+     */
+    public function getLinkedAcounts(): Collection
+    {
+        return $this->linkedAcounts;
+    }
+
+    public function addLinkedAcount(LinkedAcount $linkedAcount): static
+    {
+        if (!$this->linkedAcounts->contains($linkedAcount)) {
+            $this->linkedAcounts->add($linkedAcount);
+            $linkedAcount->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLinkedAcount(LinkedAcount $linkedAcount): static
+    {
+        if ($this->linkedAcounts->removeElement($linkedAcount)) {
+            // set the owning side to null (unless already changed)
+            if ($linkedAcount->getUser() === $this) {
+                $linkedAcount->setUser(null);
+            }
+        }
 
         return $this;
     }

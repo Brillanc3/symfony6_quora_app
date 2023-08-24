@@ -29,8 +29,7 @@ class SecurityController extends AbstractController
 
     #[Route('/register', name: 'app_register')]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
-    {
-
+        {
         if ($this->getUser()) {
             return $this->redirectToRoute('home');
         }
@@ -58,6 +57,40 @@ class SecurityController extends AbstractController
             'registrationForm' => $form->createView(),
         ]);
     }
+
+    #[Route(path: '/changepassword', name: 'changepassword')]
+    public function customRegister(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $em): Response
+    {
+
+        $user = $this->getUser();
+        
+        if (!$user) {
+            return $this->redirectToRoute('home');
+        }
+
+        $form = $this->createForm(RegistrationFormType::class, $user);
+        $form->remove('email');
+        $form->remove('pseudonyme');
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $user->setPassword(
+                $userPasswordHasher->hashPassword(
+                    $user,
+                    $form->get('plainPassword')->getData()
+                )
+            );
+            $em->flush();
+
+            return $this->redirectToRoute('home');
+        }
+
+        return $this->render('security/changepassword.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
 
     #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void

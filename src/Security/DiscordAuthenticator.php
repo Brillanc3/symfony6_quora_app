@@ -4,7 +4,6 @@ namespace App\Security;
 
 use App\Entity\LinkedAcount;
 use App\Entity\User;
-use League\OAuth2\Client\Provider\GoogleUser;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
@@ -18,13 +17,13 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
-class GoogleAuthenticator extends OAuth2Authenticator
+class DiscordAuthenticator extends OAuth2Authenticator
 {
     private ClientRegistry $clientRegistry;
     private EntityManagerInterface $entityManager;
     private RouterInterface $router;
 
-    
+
     public function __construct(ClientRegistry $clientRegistry, EntityManagerInterface $entityManager, RouterInterface $router)
     {
         $this->clientRegistry = $clientRegistry;
@@ -35,32 +34,32 @@ class GoogleAuthenticator extends OAuth2Authenticator
     public function supports(Request $request): ?bool
     {
         // continue ONLY if the current ROUTE matches the check ROUTE
-        return $request->attributes->get('_route') === 'connect_google_check';
+        return $request->attributes->get('_route') === 'connect_discord_check';
     }
 
     public function authenticate(Request $request): Passport
     {
-        $client = $this->clientRegistry->getClient('google');
+        $client = $this->clientRegistry->getClient('discord');
         $accessToken = $this->fetchAccessToken($client);
 
         return new SelfValidatingPassport(
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client) {
-                /** @var GoogleUser $googleUser */
-                $googleUser = $client->fetchUserFromToken($accessToken);
+                $discordUser = $client->fetchUserFromToken($accessToken);
+                $discordUser = $discordUser->toArray();
 
-                $existingUser = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $googleUser->getEmail()]);
+                $existingUser = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $discordUser['email']]);
                 //User doesnt exist, we create it !
 
                 if (!$existingUser) {
                     $existingUser = new User();
-                    $existingUser->setEmail( $googleUser->getEmail());
-                    $existingUser->setPseudonyme($googleUser->getName());
-                    $existingUser->setAvatar($googleUser->getAvatar());
+                    $existingUser->setEmail($discordUser['email']);
+                    $existingUser->setPseudonyme($discordUser['username']);
+                    $existingUser->setAvatar('https://cdn.discordapp.com/avatars/' . $discordUser['id'] . '/' . $discordUser['avatar'] . '.png');
                     $existingUser->setPassword('');
 
                     $linkedAcount = new LinkedAcount();
-                    $linkedAcount->setType('google');
-                    $linkedAcount->setTypeId((int) $googleUser->getId());
+                    $linkedAcount->setType('discord');
+                    $linkedAcount->setTypeId($discordUser['id']);
                     $linkedAcount->setUser($existingUser);
 
                     $existingUser->addLinkedAcount($linkedAcount);
@@ -69,7 +68,8 @@ class GoogleAuthenticator extends OAuth2Authenticator
                     $this->entityManager->flush();
                 } else {
                     // check if there is already an account with this discord id
-                    $linkedUser = $this->entityManager->getRepository(LinkedAcount::class)->findOneBy([ 'user' => $existingUser->getId() , 'type' => 'google']);
+                    $linkedUser = $this->entityManager->getRepository(LinkedAcount::class)->findOneBy([ 'user' => $existingUser->getId() , 'type' => 'discord']);
+
 
                     if ($linkedUser && $linkedUser->getUser()) {
                         $existingUser = $linkedUser->getUser();
@@ -77,12 +77,12 @@ class GoogleAuthenticator extends OAuth2Authenticator
                     }
 
                     $linkedAcount = new LinkedAcount();
-                    $linkedAcount->setType('google');
-                    $linkedAcount->setTypeId((int) $googleUser->getId());
+                    $linkedAcount->setType('discord');
+                    $linkedAcount->setTypeId($discordUser['id']);
                     $linkedAcount->setUser($existingUser);
 
                     $existingUser->addLinkedAcount($linkedAcount);
-                    $existingUser->setAvatar($googleUser->getAvatar());
+                    $existingUser->setAvatar( 'https://cdn.discordapp.com/avatars/' . $discordUser['id'] . '/' . $discordUser['avatar'] . '.png');
 
                     $this->entityManager->persist($linkedAcount);
                     $this->entityManager->flush();
@@ -95,14 +95,9 @@ class GoogleAuthenticator extends OAuth2Authenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
-
-        // change "app_dashboard" to some route in your app
         return new RedirectResponse(
-            $this->router->generate('home')
+            $this->router->generate('profile_index')
         );
-
-        // or, on success, let the request continue to be handled by the controller
-        //return null;
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
@@ -112,14 +107,14 @@ class GoogleAuthenticator extends OAuth2Authenticator
         return new Response($message, Response::HTTP_FORBIDDEN);
     }
 
-//    public function start(Request $request, AuthenticationException $authException = null): Response
-//    {
-//        /*
-//         * If you would like this class to control what happens when an anonymous user accesses a
-//         * protected page (e.g. redirect to /login), uncomment this method and make this class
-//         * implement Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface.
-//         *
-//         * For more details, see https://symfony.com/doc/current/security/experimental_authenticators.html#configuring-the-authentication-entry-point
-//         */
-//    }
+    //    public function start(Request $request, AuthenticationException $authException = null): Response
+    //    {
+    //        /*
+    //         * If you would like this class to control what happens when an anonymous user accesses a
+    //         * protected page (e.g. redirect to /login), uncomment this method and make this class
+    //         * implement Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface.
+    //         *
+    //         * For more details, see https://symfony.com/doc/current/security/experimental_authenticators.html#configuring-the-authentication-entry-point
+    //         */
+    //    }
 }

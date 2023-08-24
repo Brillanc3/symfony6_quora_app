@@ -14,14 +14,16 @@
     </div>
     <hr />
     <p class="py-10">{{ question.content }}</p>
+    {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
     <div class="separator"></div>
-    <h3>{{ form_label(form.content) }}</h3>
+    <h3>Votre commentaire : </h3>
     <div class="comment-form">
       {{ form_start(form) }}
       <div class="block mb-20">{{ form_rest(form) }}</div>
       <button class="btn btn-primary">Commenter</button>
       {{ form_end(form) }}
     </div>
+    {% endif %}
   </div>
 
   {% if question.comments|length  %}

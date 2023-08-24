@@ -192,6 +192,36 @@ ul {
   font-weight: 600;
 }
 
+.btn-twitch {
+  background-color: rgb(100, 65, 165);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.btn-google {
+  background-color: rgb(219, 50, 54);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.btn-discord {
+  background-color: rgb(114, 137, 218);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.btn-github {
+  background-color: rgb(36, 41, 46);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.btn-steam {
+  background-color: rgb(0, 0, 0);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
 .btn:hover {
   opacity: .8;
   transition: opacity .4s;

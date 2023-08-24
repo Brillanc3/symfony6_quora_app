@@ -1,14 +1,27 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Profile de ...{% endblock %}
+{% block title %}
+  Profile de {{ user.pseudonyme }}
+{% endblock %}
 
 {% block body %}
-<div class="block">
-    <h1>Profile de ...</h1>
-    <p>
-        <strong>Username : </strong> : {{ user.pseudonyme }}
-        <strong>Nombre de réponses : </strong> : 0
+  <div class="block">
+    <h1>Profile de {{ user.pseudonyme }}</h1>
+    <p class="mb-50">
+      <strong>Username :</strong> {{ user.pseudonyme }}<br />
+      <strong>Nombre de réponses :</strong> 0
     </p>
-
-</div>
+    <h2 class="mb-10">Comptes liés</h2>
+    <ul>
+      {% for linkableaccount in linkableaccounts %}
+        {% for linkedaccount in linkedaccounts %}
+          {% if linkedaccount.type == linkableaccount %}
+            <button class="btn btn-{{ linkableaccount }}"><i class="fa-brands fa-{{ linkableaccount }}"></i> Delier le compte</button>
+          {% else %}
+            <button class="btn btn-{{ linkableaccount }}"><i class="fa-brands fa-{{ linkableaccount }}"></i> Lier le compte</button>
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+    </ul>
+  </div>
 {% endblock %}
