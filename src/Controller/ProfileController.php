@@ -20,6 +20,11 @@ class ProfileController extends AbstractController
 
         $linkableAccounts = ['google', 'discord', 'github', 'twitch', 'steam'];
 
+        foreach ($linkedaccounts as $linkedaccount) {
+            $key = array_search($linkedaccount->getType(), $linkableAccounts);
+            if ($key !== false) unset($linkableAccounts[$key]);
+        }
+
         if (!$user->getPassword()) $this->addFlash('error', 'Vous n\'avez pas de mot de passe, vous ne pourrez que vous connecter avec un compte lié !');
 
         return $this->render('profile/index.html.twig', [

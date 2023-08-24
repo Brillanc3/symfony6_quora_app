@@ -12,16 +12,13 @@
       <strong>Nombre de réponses :</strong> 0
     </p>
     <h2 class="mb-10">Comptes liés</h2>
-    <ul>
-      {% for linkableaccount in linkableaccounts %}
-        {% for linkedaccount in linkedaccounts %}
-          {% if linkedaccount.type == linkableaccount %}
-            <button class="btn btn-{{ linkableaccount }}"><i class="fa-brands fa-{{ linkableaccount }}"></i> Delier le compte</button>
-          {% else %}
-            <button class="btn btn-{{ linkableaccount }}"><i class="fa-brands fa-{{ linkableaccount }}"></i> Lier le compte</button>
-          {% endif %}
-        {% endfor %}
-      {% endfor %}
-    </ul>
+
+    {% for linkedaccount in linkedaccounts %}
+      <button class="btn btn-{{ linkedaccount.type }}"><i class="fa-brands fa-{{ linkedaccount.type }}"></i> Delier le compte</button>
+    {% endfor %}
+    {% for linkableaccount in linkableaccounts %}
+      <button class="btn btn-{{ linkableaccount }}"><i class="fa-brands fa-{{ linkableaccount }}"></i> Lier le compte</button>
+    {% endfor %}
+
   </div>
 {% endblock %}
