@@ -6,25 +6,26 @@
 
 {% block body %}
   <form method="post">
-
     <div class="block mb-20">
       <h1 class="mb-20 text-center">Créer son compte</h1>
       <div class="separator"></div>
-    {% if error %}
-      <div class="text-center">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-      <div class="separator"></div>
-    {% endif %}
+      {% if error %}
+        <div class="text-center">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+        <div class="separator"></div>
+      {% endif %}
 
       <div class="form-row">
         <label for="_username">{{ form_label(form.pseudonyme) }}</label>
-        <input type="text" name="_username" id="username" />
+        <input type="text" name="_username" id="_username" />
       </div>
 
-        <div class="form-row">
-            <label for="_password">{{ form_label(form.password) }}</label>
-            <input type="password" name="_password" id="password" />
-        </div>
-
+      <div class="form-row">
+        <label for="_password">{{ form_label(form.password) }}</label>
+        <input type="password" name="_password" id="_password" />
+      </div>
+      <div class="mb-20">
+        <input type="checkbox" name="_remember_me" id="_remember_me" /> <label for="_remember_me">Rester connecté</label>
+      </div>
       <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />
       <button type="submit" class="btn btn-primary">Se connecter</button>
     </div>
