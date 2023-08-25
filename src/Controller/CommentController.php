@@ -19,7 +19,7 @@ class CommentController extends AbstractController
         $comment->setRating($comment->getRating() +  ($request->getPathInfo() === '/comment/' . $comment->getId() . '/up' ? 1 : -1));
         $em->flush();
 
-        $referer = $request->headers->get('HTTP_REFFERER');
+        $referer = $request->headers->get('referer');
         return $referer ? $this->redirect($referer) : $this->redirectToRoute('home');
     }
 }

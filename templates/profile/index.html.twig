@@ -8,17 +8,22 @@
   <div class="block">
     <h1>Profile de {{ user.pseudonyme }}</h1>
     <p class="mb-50">
-      <strong>Username :</strong> {{ user.pseudonyme }}<br />
-      <strong>Nombre de réponses :</strong> 0
+      <strong>Pseudo :</strong> {{ user.pseudonyme }}<br />
+      <strong>Nombre de questions :</strong> {{ questions|length }}<br />
+      <strong>Nombre de réponses :</strong> {{ comments|length }}<br />
+      <br>
+      <strong>Dernière question posé : </strong> <a class="clickable" href="{{ path('question_show', {id : questions.first.id}) }}"> ({{ (questions.first.ratting > 0 ? '↑' : '↓') ~ questions.first.ratting}}) {{ questions.first.title }}</a><br />
     </p>
     <h2 class="mb-10">Comptes liés</h2>
-
-    {% for linkedaccount in linkedaccounts %}
-      <button class="btn btn-{{ linkedaccount.type }}"><i class="fa-brands fa-{{ linkedaccount.type }}"></i> Delier le compte</button>
-    {% endfor %}
-    {% for linkableaccount in linkableaccounts %}
-      <button class="btn btn-{{ linkableaccount }}"><i class="fa-brands fa-{{ linkableaccount }}"></i> Lier le compte</button>
-    {% endfor %}
-
+    <div class="block">
+      <div class="d-flex flex-row-wrap justify-content-center align-items-center flex-row-gape-10">
+        {% for linkedaccount in linkedaccounts %}
+          <a href=" {{ path('unlink', {type : linkedaccount.type}) }} " class="btn btn-small font-weight-regular btn-{{ linkedaccount.type }}"><i class="fa-brands fa-{{ linkedaccount.type }}"></i> Lié : {{ linkedaccount.Username }}</a>
+        {% endfor %}
+        {% for linkableaccount in linkableaccounts %}
+          <a class="btn btn-small font-weight-regular btn-{{ linkableaccount }}"><i class="fa-brands fa-{{ linkableaccount }}"></i> Lier le compte</a>
+        {% endfor %}
+      </div>
+    </div>
   </div>
 {% endblock %}

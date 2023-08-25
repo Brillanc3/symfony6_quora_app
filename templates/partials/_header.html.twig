@@ -7,7 +7,9 @@
     </div>
     <div class="">
       {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
-        <a href="{{ path('app_logout') }}" class="btn btn-primary">Déconnexion</a>
+        <div class="d-flex justify-content-end align-items-center">
+         <img class="avatar" src="{{ asset('images/avatars/' ~ app.user.avatar)  }}" alt="Avatar de {{ app.user.pseudonyme }}"> <span class="clickable">{{ app.user.pseudonyme }}</span>
+        </div>
       {% else %}
         <a href="{{ path('app_register') }}" class="btn btn-primary">Inscription</a>
         <a href="{{ path('app_login') }}" class="btn btn-primary-stroke">Connexion</a>

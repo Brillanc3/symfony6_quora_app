@@ -98,6 +98,14 @@ ul {
     flex: 1;
 }
 
+.flex-row-gape-10 {
+  gap: 10px;
+}
+
+.flex-row-gape-20 {
+    gap: 20px;
+}
+
 
 /* Margins */
 .m-5 {
@@ -142,6 +150,26 @@ ul {
 
 .ml-auto {
   margin-left: auto;
+}
+
+.mt-10 {
+  margin-top: 10px;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mt-30 {
+  margin-top: 30px;
+}
+
+.mt-50 {
+  margin-top: 50px;
+}
+
+.mt-auto {
+  margin-top: auto;
 }
 
 /* Paddings */
@@ -298,6 +326,10 @@ ul {
   font-size: var(--font-size-small);
 }
 
+.text-center {
+  text-align: center;
+}
+
 /* FLASH Messages */
 .flash {
   padding: 20px;
@@ -344,6 +376,20 @@ ul {
 .separator {
   border-bottom: 1px solid var(--gray-light);
   margin: 30px 0px;
+}
+
+/* FONT */
+
+.font-weight-regular {
+  font-weight: var(--font-weight-regular);
+}
+
+.font-weight-semi-bold {
+  font-weight: var(--font-weight-semi-bold);
+}
+
+.font-weight-bold {
+  font-weight: var(--font-weight-bold);
 }
 
 /* HEADER */

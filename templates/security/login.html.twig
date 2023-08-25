@@ -1,44 +1,32 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}
+  Se connecter
+{% endblock %}
 
 {% block body %}
-    <form method="post">
-        {% if error %}
-            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-        {% endif %}
+  <form method="post">
 
-        {% if app.user %}
-            <div class="mb-3">
-                You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
-            </div>
-        {% endif %}
+    <div class="block mb-20">
+      <h1 class="mb-20 text-center">Créer son compte</h1>
+      <div class="separator"></div>
+    {% if error %}
+      <div class="text-center">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+      <div class="separator"></div>
+    {% endif %}
 
-        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-        <label for="username">Email or Username</label>
-        <input type="text" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="email" required autofocus>
-        <label for="password">Password</label>
-        <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
+      <div class="form-row">
+        <label for="_username">{{ form_label(form.pseudonyme) }}</label>
+        <input type="text" name="_username" id="username" />
+      </div>
 
-        <input type="hidden" name="_csrf_token"
-               value="{{ csrf_token('authenticate') }}"
-        >
+        <div class="form-row">
+            <label for="_password">{{ form_label(form.password) }}</label>
+            <input type="password" name="_password" id="password" />
+        </div>
 
-        {#
-            Uncomment this section and add a remember_me option below your firewall to activate remember me functionality.
-            See https://symfony.com/doc/current/security/remember_me.html
-        #}
-
-            <div class="checkbox mb-3">
-                <label>
-                    <input type="checkbox" name="_remember_me"> Remember me
-                </label>
-            </div>
-
-        <button class="btn btn-lg btn-primary" type="submit">
-            Sign in
-        </button>
-        <a href="{{ path('google_connect') }}" class="btn btn-lg btn-primary">Sign in with Google</a>
-        <a href="{{ path('discord_connect') }}" class="btn btn-lg btn-primary">Sign in with Discord</a>
-    </form>
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}" />
+      <button type="submit" class="btn btn-primary">Se connecter</button>
+    </div>
+  </form>
 {% endblock %}

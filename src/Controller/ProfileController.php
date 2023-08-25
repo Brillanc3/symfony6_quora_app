@@ -13,9 +13,13 @@ class ProfileController extends AbstractController
     #[Route(path: '', name: 'index')]
     public function index()
     {
+        /**
+         * @var User $user
+         */
         $user = $this->getUser();
 
-        // get linked acounts
+        if(!$user) return $this->redirectToRoute('app_login');
+
         $linkedaccounts = $user->getLinkedAcounts();
 
         $linkableAccounts = ['google', 'discord', 'github', 'twitch', 'steam'];
@@ -25,12 +29,17 @@ class ProfileController extends AbstractController
             if ($key !== false) unset($linkableAccounts[$key]);
         }
 
-        if (!$user->getPassword()) $this->addFlash('error', 'Vous n\'avez pas de mot de passe, vous ne pourrez que vous connecter avec un compte lié !');
+        $question = $user->getQuestions();
+        $comment = $user->getComments();
+
+        if (!$user->getPassword()) $this->addFlash('error', 'Vous n\'avez pas de mot de passe, vous ne pourrez que vous connecter avec un compte lié !<br> <a href="' . $this->generateUrl('app_register') . '">Créer un mot de passe</a>');
 
         return $this->render('profile/index.html.twig', [
             'user' => $user,
             'linkedaccounts' => $linkedaccounts,
-            'linkableaccounts' => $linkableAccounts
+            'linkableaccounts' => $linkableAccounts,
+            'questions' => $question,
+            'comments' => $comment,
         ]);
     }
 }

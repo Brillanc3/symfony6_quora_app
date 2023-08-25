@@ -7,9 +7,12 @@
   <ul class="sidebar-nav py-20">
     <a href="{{ path('home') }}" class="active"><i class="fas fa-home mr-5"></i>Liste des questions</a>
 
-    <a href="#"><i class="fas fa-pen mr-5"></i>Mes questions</a>
+    <a href="{{path('question_me')}}"><i class="fas fa-pen mr-5"></i>Mes questions</a>
 
     <a href="#"><i class="fas fa-puzzle-piece mr-5"></i>Mes réponses</a>
-    <a href="{{ path('profile_index') }}">🙍 Mon profile </a>
+    {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+      <a href="{{ path('profile_index') }}"><i class="fa-solid fa-user"></i> Mon profile</a>
+      <a href="{{ path('app_logout') }}"><i class="fa-solid fa-right-from-bracket"></i>Se déconnecter</a>
+    {% endif %}
   </ul>
 </div>

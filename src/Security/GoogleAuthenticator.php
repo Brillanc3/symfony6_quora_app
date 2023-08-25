@@ -47,7 +47,6 @@ class GoogleAuthenticator extends OAuth2Authenticator
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client) {
                 /** @var GoogleUser $googleUser */
                 $googleUser = $client->fetchUserFromToken($accessToken);
-
                 $existingUser = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $googleUser->getEmail()]);
                 //User doesnt exist, we create it !
 
@@ -62,6 +61,7 @@ class GoogleAuthenticator extends OAuth2Authenticator
                     $linkedAcount->setType('google');
                     $linkedAcount->setTypeId((int) $googleUser->getId());
                     $linkedAcount->setUser($existingUser);
+                    $linkedAcount->setUsername($googleUser->getName());
 
                     $existingUser->addLinkedAcount($linkedAcount);
                     $this->entityManager->persist($existingUser);
@@ -80,6 +80,8 @@ class GoogleAuthenticator extends OAuth2Authenticator
                     $linkedAcount->setType('google');
                     $linkedAcount->setTypeId((int) $googleUser->getId());
                     $linkedAcount->setUser($existingUser);
+                    $linkedAcount->setUsername($googleUser->getName());
+
 
                     $existingUser->addLinkedAcount($linkedAcount);
                     $existingUser->setAvatar($googleUser->getAvatar());

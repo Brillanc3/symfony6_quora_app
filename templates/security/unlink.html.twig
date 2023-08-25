@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+  {{ error is defined ? error : 'Désasociation de ' ~ type }}
+{% endblock %}
+
+{% block body %}
+  {% if error is defined %}
+    <div class="block d-flex flex-column justify-content-center align-items-center">
+      <h2>{{ error }}</h2>
+      <p>
+        <a href="{{ path('home') }}">Retour à l'accueil</a>
+      </p>
+    </div>
+  {% else %}
+    {{ form_start(form) }}
+    {{ form_rest(form)  }}
+    {{ form_end(form)   }}
+  {% endif %}
+{% endblock %}

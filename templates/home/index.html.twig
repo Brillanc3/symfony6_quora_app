@@ -14,8 +14,8 @@
                     </div>
                     <div class="d-flex flex-row justify-content-between">
                         <div class="d-flex flex-row align-items-center">
-                            <img class="avatar mr-20" src="https://randomuser.me/api/portraits/men/12.jpg" alt="Profile picture">
-                            <p>Demandé par <span id="user" class="clickable">Brillance</span> le {{question.createdAt | date('d/mY') }}</p>
+                            <img class="avatar mr-20" src="{{ asset('images/avatars/' ~ question.user.avatar) }}" alt="Profile picture">
+                            <p>Demandé par <span id="user" class="clickable">{{ question.user.pseudonyme }}</span> le {{question.createdAt | date('d/mY') }}</p>
                         </div>
                         <div class="d-flex flex-row align-items-center">
                             <i class="fas fa-comment mr-20"></i>

@@ -26,6 +26,9 @@ class LinkedAcount
     #[ORM\ManyToOne(inversedBy: 'linkedAcounts')]
     private ?user $user = null;
 
+    #[ORM\Column(length: 255)]
+    private ?string $username = null;
+
     public function __construct()
     {
     }
@@ -68,6 +71,18 @@ class LinkedAcount
     public function setUser(?user $user): static
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): static
+    {
+        $this->username = $username;
 
         return $this;
     }

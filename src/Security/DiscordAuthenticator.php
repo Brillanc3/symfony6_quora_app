@@ -44,6 +44,7 @@ class DiscordAuthenticator extends OAuth2Authenticator
 
         return new SelfValidatingPassport(
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client) {
+                /** @var DiscordUser $discordUser */
                 $discordUser = $client->fetchUserFromToken($accessToken);
                 $discordUser = $discordUser->toArray();
 
@@ -61,6 +62,7 @@ class DiscordAuthenticator extends OAuth2Authenticator
                     $linkedAcount->setType('discord');
                     $linkedAcount->setTypeId($discordUser['id']);
                     $linkedAcount->setUser($existingUser);
+                    $linkedAcount->setUsername($discordUser['global_name']);
 
                     $existingUser->addLinkedAcount($linkedAcount);
                     $this->entityManager->persist($existingUser);
