@@ -8,7 +8,7 @@
     <div class="">
       {% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
         <div class="d-flex justify-content-end align-items-center">
-         <img class="avatar" src="{{ asset('images/avatars/' ~ app.user.avatar)  }}" alt="Avatar de {{ app.user.pseudonyme }}"> <span class="clickable">{{ app.user.pseudonyme }}</span>
+         <img class="avatar" src="{{ asset(app.user.avatar)  }}" alt="Avatar de {{ app.user.pseudonyme }}"> <span class="clickable">{{ app.user.pseudonyme }}</span>
         </div>
       {% else %}
         <a href="{{ path('app_register') }}" class="btn btn-primary">Inscription</a>

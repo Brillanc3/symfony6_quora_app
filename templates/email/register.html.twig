@@ -1,0 +1,10 @@
+<div>
+  <h1>Activer votre compte</h1>
+  <p>
+    Vous avez reçu un mail de confirmation à l'adresse suivante : <?php echo $email; ?>. <br /> Veuillez cliquer sur le lien contenu dans le mail pour activer votre compte.
+  </p>
+  <p>
+    <a href="{{ absolute_url(path('activate', {token: token})) }}">Lien d'activation</a>
+  </p>
+  <p>Le lien expirera dans 10 minutes.</p>
+</div>

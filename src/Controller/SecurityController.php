@@ -5,6 +5,10 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\LoginFromType;
 use App\Form\RegistrationFormType;
+use App\Repository\UserRepository;
+use App\Security\UsersAuthenticator;
+use App\Service\JWTService;
+use App\Service\SendMailService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,6 +17,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 
 class SecurityController extends AbstractController
 {
@@ -28,7 +33,7 @@ class SecurityController extends AbstractController
             'action' => $this->generateUrl('app_login'),
             'method' => 'POST',
         ]);
-        
+
         $form->handleRequest($request);
 
         return $this->render('security/login.html.twig', [
@@ -39,8 +44,15 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
-    {
+    public function register(
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
+        UserAuthenticatorInterface $userAuthenticator,
+        UsersAuthenticator $authenticator,
+        EntityManagerInterface $entityManager,
+        SendMailService $sendMailService,
+        JWTService $jwt
+    ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('home');
         }
@@ -61,20 +73,47 @@ class SecurityController extends AbstractController
             // check if user have avatar
             if ($form->get('avatar')->getData()) {
                 $file = $form->get('avatar')->getData();
-                $fileName = uniqid() . '.' . $file->guessExtension();
+                $fileName = uniqid() . '.' . $file->guessExtension() ?? 'bin';
 
                 $file->move(
                     $this->getParameter('avatar_directory'),
                     $fileName
                 );
 
-                $user->setAvatar($fileName);
+                $user->setAvatar($this->getParameter('profile.folder.public_path') . $fileName);
+            } else {
+                $user->setAvatar($this->getParameter('profile.folder.public_path') . 'default.png');
             }
 
             $entityManager->persist($user);
             $entityManager->flush();
 
-            return $this->redirectToRoute('home');
+            // JWT de l'user
+            $header = [
+                'alg' => 'HS256',
+                'typ' => 'JWT'
+            ];
+
+            $playload = [
+                'id' => $user->getId()
+            ];
+
+            $token = $jwt->generateToken($header, $playload, $this->getParameter('app.jwtsecret'));
+
+            $sendMailService->send(
+                'no-replay@localhost.local',
+                $user->getEmail(),
+                'Activation de votre compte sur le site ' . $this->getParameter('app.name'),
+                'register',
+                compact('user', 'token')
+            );
+
+            // return $this->redirectToRoute('home');
+            return $userAuthenticator->authenticateUser(
+                $user,
+                $authenticator,
+                $request
+            );
         }
 
         return $this->render('security/register.html.twig', [
@@ -176,5 +215,74 @@ class SecurityController extends AbstractController
 
         dd($user);
         return $this->redirectToRoute('profile_index');
+    }
+
+    #[Route(path: '/activate/{token}', name: 'activate')]
+    public function activate($token, JWTService $jwt, EntityManagerInterface $entityManager): Response
+    {
+
+        // dd($jwt->isExpired($token));
+
+        // dd($jwt->isSignatureValid($token, $this->getParameter('app.jwtsecret')));
+
+        if($jwt->isValide($token) && !$jwt->isExpired($token) && $jwt->isSignatureValid($token, $this->getParameter('app.jwtsecret')) ) {
+            /** 
+             * @var User $user
+             */
+            $user = $entityManager->getRepository(User::class)->find($jwt->getPayload($token)['id']);
+
+            if($user && $user->getIsVerified()) {
+                $this->addFlash('warning', 'Votre compte est déjà activé');
+                return $this->redirectToRoute('app_login');
+            }
+
+            $user->setIsVerified(true);
+            $entityManager->flush();
+            $this->addFlash('success', 'Votre compte est activé');
+            return $this->redirectToRoute('app_login');
+        } else {
+            $this->addFlash('warning', 'Le token est invalide ou a expiré');
+            return $this->redirectToRoute('app_login');
+        }
+    }
+
+    #[Route(path: '/resendVerification', name: 'resendVerification')]
+    public function resendVerification(JWTService $jwt, SendMailService $sendMailService, UserRepository $userRepository) : Response
+    {
+        /**
+         * @var User $user
+         */
+        $user = $this->getUser();
+        if(!$user) {
+            $this->addFlash('warning', 'Vous devez être connecté pour effectuer cette action');
+            return $this->redirectToRoute('app_login');
+        }
+
+        if($user->getIsVerified()){
+            $this->addFlash('warning', 'Votre compte est déjà activé');
+            return $this->redirectToRoute('home');
+        }
+
+        $header = [
+            'alg' => 'HS256',
+            'typ' => 'JWT'
+        ];
+
+        $playload = [
+            'id' => $user->getId()
+        ];
+
+        $token = $jwt->generateToken($header, $playload, $this->getParameter('app.jwtsecret'));
+
+        $sendMailService->send(
+            'no-replay@localhost.local',
+            $user->getEmail(),
+            'Activation de votre compte sur le site ' . $this->getParameter('app.name'),
+            'register',
+            compact('user', 'token')
+        );
+
+        $this->addFlash('success', 'Un email de vérification vous a été envoyé');
+        return $this->redirectToRoute('home');
     }
 }

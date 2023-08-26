@@ -16,6 +16,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -37,13 +38,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $pseudonyme = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $googleId = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $hostedDomain = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
     private ?string $avatar = null;
+
+    #[ORM\Column(type: 'boolean')]
+    private ?bool $isVerified = false;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: LinkedAcount::class)]
     private Collection $linkedAcounts;
@@ -139,30 +137,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPseudonyme(string $pseudonyme): static
     {
         $this->pseudonyme = $pseudonyme;
-
-        return $this;
-    }
-
-    public function getGoogleId(): ?string
-    {
-        return $this->googleId;
-    }
-
-    public function setGoogleId(string $GoogleId): static
-    {
-        $this->googleId = $GoogleId;
-
-        return $this;
-    }
-
-    public function getHostedDomain(): ?string
-    {
-        return $this->hostedDomain;
-    }
-
-    public function setHostedDomain(?string $HostedDomain): static
-    {
-        $this->hostedDomain = $HostedDomain;
 
         return $this;
     }
@@ -265,6 +239,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $comment->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getIsVerified(): ?bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setIsVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
 
         return $this;
     }
