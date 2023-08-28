@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+  Lier son compte
+{% endblock %}
+
+{% block body %}
+  <div class="block">
+    <h1 class="">{{ link.name }}</h1>
+    <p>Compte {{ link.type }}</p>
+    <div class="d-flex justify-content-center flex-row-nowrap flex-column ">
+      <div class="separator" style="border-color: black;"></div>
+      <a href="#" class="btn-linkaccount mb-10 text-center">Créer un nouveau profil</a>
+      <a href="#" class="btn-linkaccount mb-10 text-center">Associer un profil existant</a>
+      <a href="{{ path('app_logout') }}" class="btn-logout text-center">Ce n'est pas vous ? Déconnexion</a>
+    </div>
+  </div>
+{% endblock %}

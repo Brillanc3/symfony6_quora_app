@@ -22,7 +22,7 @@ class LinkedAcount
     private ?int $typeId = null;
 
     #[ORM\ManyToOne(inversedBy: 'linkedAcounts')]
-    private ?user $user = null;
+    private ?User $user = null;
 
     #[ORM\Column(length: 255)]
     private ?string $username = null;
@@ -66,7 +66,7 @@ class LinkedAcount
         return $this->user;
     }
 
-    public function setUser(?user $user): static
+    public function setUser(?User $user): static
     {
         $this->user = $user;
 

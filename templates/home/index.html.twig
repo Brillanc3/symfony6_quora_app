@@ -14,7 +14,7 @@
                     </div>
                     <div class="d-flex flex-row justify-content-between">
                         <div class="d-flex flex-row align-items-center">
-                            <img class="avatar mr-20" src="{{ asset('images/avatars/' ~ question.user.avatar) }}" alt="Profile picture">
+                            <img class="avatar mr-20" src="{{ asset(question.user.avatar) }}" alt="Profile picture">
                             <p>Demandé par <span id="user" class="clickable">{{ question.user.pseudonyme }}</span> le {{question.createdAt | date('d/mY') }}</p>
                         </div>
                         <div class="d-flex flex-row align-items-center">

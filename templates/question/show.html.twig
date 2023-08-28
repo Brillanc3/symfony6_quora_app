@@ -13,7 +13,7 @@
       <div class="d-flex ml-auto align-items-center">
         <span>
           par : <code class="clickable">{{ question.user.pseudonyme }}</code>
-        </span> <img src="{{ asset('images/avatars/' ~ question.user.avatar) }}" alt="" class="avatar ml-auto" />
+        </span> <img src="{{ question.user.avatar }}" alt="" class="avatar ml-auto" />
       </div>
     </div>
     <hr />
@@ -36,7 +36,7 @@
         <div class="question-response-elem mb-30">
           <div class="d-flex flex-row-nowrap align-items-center pb-10">
             {% include 'partials/_voteHandler.html.twig' with { rating: comment.rating, from: 'comment', id: comment.id } %}
-            <img src="{{ asset('images/avatars/' ~ comment.user.avatar) }}" alt="" class="avatar mr-10" />
+            <img src="{{ asset(comment.user.avatar) }}" alt="" class="avatar mr-10" />
             <p class="clickable" href="#">{{ comment.user.pseudonyme }}</p>
             <code class="ml-auto">{{ comment.createdAt|ago(locale = 'fr') }}</code>
           </div>

@@ -225,13 +225,13 @@ class SecurityController extends AbstractController
 
         // dd($jwt->isSignatureValid($token, $this->getParameter('app.jwtsecret')));
 
-        if($jwt->isValide($token) && !$jwt->isExpired($token) && $jwt->isSignatureValid($token, $this->getParameter('app.jwtsecret')) ) {
+        if ($jwt->isValide($token) && !$jwt->isExpired($token) && $jwt->isSignatureValid($token, $this->getParameter('app.jwtsecret'))) {
             /** 
              * @var User $user
              */
             $user = $entityManager->getRepository(User::class)->find($jwt->getPayload($token)['id']);
 
-            if($user && $user->getIsVerified()) {
+            if ($user && $user->getIsVerified()) {
                 $this->addFlash('warning', 'Votre compte est déjà activé');
                 return $this->redirectToRoute('app_login');
             }
@@ -247,18 +247,18 @@ class SecurityController extends AbstractController
     }
 
     #[Route(path: '/resendVerification', name: 'resendVerification')]
-    public function resendVerification(JWTService $jwt, SendMailService $sendMailService, UserRepository $userRepository) : Response
+    public function resendVerification(JWTService $jwt, SendMailService $sendMailService, UserRepository $userRepository): Response
     {
         /**
          * @var User $user
          */
         $user = $this->getUser();
-        if(!$user) {
+        if (!$user) {
             $this->addFlash('warning', 'Vous devez être connecté pour effectuer cette action');
             return $this->redirectToRoute('app_login');
         }
 
-        if($user->getIsVerified()){
+        if ($user->getIsVerified()) {
             $this->addFlash('warning', 'Votre compte est déjà activé');
             return $this->redirectToRoute('home');
         }
@@ -284,5 +284,23 @@ class SecurityController extends AbstractController
 
         $this->addFlash('success', 'Un email de vérification vous a été envoyé');
         return $this->redirectToRoute('home');
+    }
+
+    #[Route(path: 'linkaccount', name: 'linkaccount')]
+    public function linkAccount(): Response
+    {
+        /**
+         * @var User $user
+         */
+        $user = $this->getUser();
+        
+        $link = [
+            'name' => $user->getPseudonyme(),
+            'type' => 'Discord Inc.',
+        ];
+
+        return $this->render('security/chooseAccount.html.twig', [
+            'link' => $link
+        ]);
     }
 }

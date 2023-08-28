@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Comment;
 use App\Entity\Question;
 use App\Entity\User;
+use App\Entity\Votes;
 use App\Form\CommentType;
 use App\Form\QuestionType;
 use Doctrine\ORM\EntityManagerInterface;
@@ -51,7 +52,7 @@ class QuestionController extends AbstractController
             'form' => $questionForm->createView(),
         ]);
     }
-    
+
     #[Route('/me', name: 'me')]
     public function showMe()
     {
@@ -76,11 +77,11 @@ class QuestionController extends AbstractController
     public function show(Question $question, Request $request, EntityManagerInterface $em)
     {
 
-        if($this->getUser()) {
+        if ($this->getUser()) {
             $newComment = new Comment();
             $commentForm = $this->createForm(CommentType::class, $newComment);
             $commentForm->handleRequest($request);
-    
+
             $options['form'] = $commentForm->createView();
 
             if ($commentForm->isSubmitted() && $commentForm->isValid()) {
@@ -89,12 +90,12 @@ class QuestionController extends AbstractController
                 $newComment->setQuestion($question);
                 $newComment->setRating(0);
                 $newComment->setUser($this->getUser());
-    
+
                 $question->setNbResponse($question->getNbResponse() + 1);
-    
+
                 $this->addFlash('success', 'Votre commentaire a bien été ajouté !');
                 $em->persist($newComment);
-                
+
                 $em->flush();
                 $referer = $request->headers->get('referer');
                 return $referer ? $this->redirect($referer) : $this->redirectToRoute('home');
@@ -109,16 +110,38 @@ class QuestionController extends AbstractController
 
     #[Route('/{id}/up', name: 'up')]
     #[Route('/{id}/down', name: 'down')]
-    public function up(Question $question, EntityManagerInterface $em, Request $request) : Response
+    public function up(Question $question, EntityManagerInterface $em, Request $request): Response
     {
-        if ($this->getUser()) {
-            $question->setRatting($question->getRatting() +  ($request->getPathInfo() === '/question/' . $question->getId() . '/up' ? 1 : -1));
-            $em->flush();
-        } else {
+
+        /**
+         * @var User $user
+         */
+        $user = $this->getUser();
+
+        if (!$user) {
             $this->addFlash('error', 'Vous devez être connecté pour voter !');
+            $referer = $request->headers->get('referer');
+            return $referer ? $this->redirect($referer) : $this->redirectToRoute('home');
         }
+
+        if ($question->getVotes()->exists(function ($key, $element) use ($user) {
+            return $element->getUser() === $user;
+        })) {
+            $this->addFlash('error', 'Vous avez déjà voté pour cette question !');
+            $referer = $request->headers->get('referer');
+            return $referer ? $this->redirect($referer) : $this->redirectToRoute('home');
+        }
+
+        $question->setRatting($question->getRatting() +  ($request->getPathInfo() === '/question/' . $question->getId() . '/up' ? 1 : -1));
+
+        $vote = new Votes();
+        $vote->setUser($this->getUser());
+        $vote->setQuestion($question);
+
+        $em->persist($vote);
+        $em->flush();
+
         $referer = $request->headers->get('referer');
         return $referer ? $this->redirect($referer) : $this->redirectToRoute('home');
     }
-
 }

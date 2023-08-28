@@ -226,6 +226,28 @@ ul {
   font-weight: 600;
 }
 
+.btn-linkaccount {
+  border-radius: 0px;
+  border: none;
+  padding: 10px 20px;
+  box-shadow: var(--box-shadow);
+  cursor: pointer;
+  background-color: rgb(51, 120, 124);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.btn-logout {
+  border-radius: 0px;
+  border: none;
+  padding: 10px 20px;
+  box-shadow: var(--box-shadow);
+  cursor: pointer;
+  background-color: rgb(48, 64, 65);
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
 .btn-google {
   background-color: rgb(219, 50, 54);
   color: var(--color-primary);

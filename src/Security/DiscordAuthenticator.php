@@ -1,12 +1,14 @@
 <?php
-# src/Security/GoogleAuthenticator.php
+
 namespace App\Security;
 
+use App\Controller\SecurityController as SecurityController;
 use App\Entity\LinkedAcount;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
+use League\OAuth2\Client\Grant\Password;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,9 +25,11 @@ class DiscordAuthenticator extends OAuth2Authenticator
     private EntityManagerInterface $entityManager;
     private RouterInterface $router;
 
-
-    public function __construct(ClientRegistry $clientRegistry, EntityManagerInterface $entityManager, RouterInterface $router)
-    {
+    public function __construct(
+        ClientRegistry $clientRegistry,
+        EntityManagerInterface $entityManager,
+        RouterInterface $router
+    ) {
         $this->clientRegistry = $clientRegistry;
         $this->entityManager = $entityManager;
         $this->router = $router;
@@ -41,65 +45,51 @@ class DiscordAuthenticator extends OAuth2Authenticator
     {
         $client = $this->clientRegistry->getClient('discord');
         $accessToken = $this->fetchAccessToken($client);
-
         return new SelfValidatingPassport(
             new UserBadge($accessToken->getToken(), function () use ($accessToken, $client) {
-                /** @var DiscordUser $discordUser */
-                $discordUser = $client->fetchUserFromToken($accessToken);
-                $existingUser = null;
-
                 /**
-                 * 
-                 * @TODO: Check if linked account already exists
-                 * else give the user the choice to link the account or create a new one
-                 * 
+                 * @var DiscordUser $discordUser
                  */
+                $discordUser = $client->fetchUserFromToken($accessToken);
+                $existingUser = $this->entityManager->getRepository(LinkedAcount::class)->findOneBy(['typeId' => $discordUser->getId()]);
 
-                // $discordUser = $discordUser->toArray();
+                if($existingUser) {
+                    return $existingUser->getUser();
+                } else {
+                    $existingUser = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $discordUser->getEmail()]);
 
-                // $existingUser = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $discordUser['email']]);
-                // //User doesnt exist, we create it !
+                    if($existingUser) {
+                        $linkedAcount = new LinkedAcount();
+                        $linkedAcount->setType('discord');
+                        $linkedAcount->setTypeId($discordUser->getId());
+                        $linkedAcount->setUser($existingUser);
+                        $linkedAcount->setUsername($discordUser->getUsername());
 
-                // if (!$existingUser) {
-                //     $existingUser = new User();
-                //     $existingUser->setEmail($discordUser['email']);
-                //     $existingUser->setPseudonyme($discordUser['username']);
-                //     $existingUser->setAvatar('https://cdn.discordapp.com/avatars/' . $discordUser['id'] . '/' . $discordUser['avatar'] . '.png');
-                //     $existingUser->setPassword('');
+                        $existingUser->addLinkedAcount($linkedAcount);
+                        $this->entityManager->persist($linkedAcount);
+                        $this->entityManager->flush();
 
-                //     $linkedAcount = new LinkedAcount();
-                //     $linkedAcount->setType('discord');
-                //     $linkedAcount->setTypeId($discordUser['id']);
-                //     $linkedAcount->setUser($existingUser);
-                //     $linkedAcount->setUsername($discordUser['global_name']);
+                        return $existingUser;
+                    }
+                }
 
-                //     $existingUser->addLinkedAcount($linkedAcount);
-                //     $this->entityManager->persist($existingUser);
-                //     $this->entityManager->persist($linkedAcount);
-                //     $this->entityManager->flush();
-                // } else {
-                //     // check if there is already an account with this discord id
-                //     $linkedUser = $this->entityManager->getRepository(LinkedAcount::class)->findOneBy([ 'user' => $existingUser->getId() , 'type' => 'discord']);
+                $u = new User();
+                $u->setEmail($discordUser->getEmail());
+                $u->setPseudonyme($discordUser->getUsername());
+                $u->setAvatar('https://cdn.discordapp.com/avatars/' . $discordUser->getId() . '/' . $discordUser->getAvatarHash() . '.png');
+                $u->setPassword('');
 
+                $linkedAcount = new LinkedAcount();
+                $linkedAcount->setType('discord');
+                $linkedAcount->setTypeId($discordUser->getId());
+                $linkedAcount->setUser($u);
 
-                //     if ($linkedUser && $linkedUser->getUser()) {
-                //         $existingUser = $linkedUser->getUser();
-                //         return $existingUser;
-                //     }
+                $u->addLinkedAcount($linkedAcount);
 
-                //     $linkedAcount = new LinkedAcount();
-                //     $linkedAcount->setType('discord');
-                //     $linkedAcount->setTypeId($discordUser['id']);
-                //     $linkedAcount->setUser($existingUser);
+                $this->entityManager->persist($u);
+                $this->entityManager->flush();
 
-                //     $existingUser->addLinkedAcount($linkedAcount);
-                //     $existingUser->setAvatar( 'https://cdn.discordapp.com/avatars/' . $discordUser['id'] . '/' . $discordUser['avatar'] . '.png');
-
-                //     $this->entityManager->persist($linkedAcount);
-                //     $this->entityManager->flush();
-                // }
-
-                return $existingUser;
+                return $u;
             })
         );
     }
@@ -107,7 +97,8 @@ class DiscordAuthenticator extends OAuth2Authenticator
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response
     {
         return new RedirectResponse(
-            $this->router->generate('profile_index')
+            // $secu->linkaccount($user)
+            $this->router->generate('linkaccount')
         );
     }
 

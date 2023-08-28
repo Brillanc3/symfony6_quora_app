@@ -17,5 +17,7 @@ class DiscordController extends AbstractController
 
     #[Route('/connect/discord/check', name: 'connect_discord_check')]
     public function check()
-    {}
+    {
+        dd('test');
+    }
 }
