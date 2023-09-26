@@ -41,7 +41,7 @@ class DiscordAuthenticator extends OAuth2Authenticator
         return $request->attributes->get('_route') === 'connect_discord_check';
     }
 
-    public function authenticate(Request $request): Passport
+    public function authenticate(Request $request): Passport /* App/Entity/User */
     {
         $client = $this->clientRegistry->getClient('discord');
         $accessToken = $this->fetchAccessToken($client);
@@ -50,6 +50,7 @@ class DiscordAuthenticator extends OAuth2Authenticator
                 /**
                  * @var DiscordUser $discordUser
                  */
+
                 $discordUser = $client->fetchUserFromToken($accessToken);
                 $existingUser = $this->entityManager->getRepository(LinkedAcount::class)->findOneBy(['typeId' => $discordUser->getId()]);
 
